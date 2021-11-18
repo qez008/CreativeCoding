@@ -2,6 +2,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.loadFont
@@ -10,6 +11,7 @@ import org.openrndr.extra.noise.random
 import org.openrndr.extra.noise.simplex
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Circle
+
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -23,8 +25,8 @@ val BACKGROUND = ColorRGBa(200 / 255.0, 200 / 255.0, 200 / 255.0, 255 / 255.0)
 fun main() = application {
 
     configure {
-        height = 1080 / 2
-        width = 1920 / 2
+        height = 1080 / 3 * 2
+        width = 1920 / 3 * 2
     }
 
     program {
