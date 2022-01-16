@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.internal.os.OperatingSystem
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /* the name of this project, default is the template version but you are free to change these */
 group = "org.openrndr.template"
@@ -34,7 +34,7 @@ val orxFeatures = setOf(
 //  "orx-kotlin-parser",
 //  "orx-mesh-generators",
 //  "orx-midi",
-//  "orx-no-clear",
+    "orx-no-clear",
     "orx-noise",
 //  "orx-obj-loader",
     "orx-olive",
@@ -94,7 +94,7 @@ val orxTensorflowBackend = "orx-tensorflow-mkl"
 val supportedPlatforms = setOf("windows", "macos", "linux-x64", "linux-arm64")
 
 val openrndrOs = if (project.hasProperty("targetPlatform")) {
-    val platform : String = project.property("targetPlatform") as String
+    val platform: String = project.property("targetPlatform") as String
     if (platform !in supportedPlatforms) {
         throw IllegalArgumentException("target platform not supported: $platform")
     } else {
@@ -103,10 +103,10 @@ val openrndrOs = if (project.hasProperty("targetPlatform")) {
 } else when (OperatingSystem.current()) {
     OperatingSystem.WINDOWS -> "windows"
     OperatingSystem.MAC_OS -> "macos"
-    OperatingSystem.LINUX -> when(val h = DefaultNativePlatform("current").architecture.name) {
+    OperatingSystem.LINUX -> when (val h = DefaultNativePlatform("current").architecture.name) {
         "x86-64" -> "linux-x64"
         "aarch64" -> "linux-arm64"
-        else ->throw IllegalArgumentException("architecture not supported: $h")
+        else -> throw IllegalArgumentException("architecture not supported: $h")
     }
     else -> throw IllegalArgumentException("os not supported")
 }
@@ -125,7 +125,7 @@ val kotlinVersion = "1.5.0"
 
 plugins {
     java
-    kotlin("jvm") version("1.5.0")
+    kotlin("jvm") version ("1.5.0")
     id("com.github.johnrengelman.shadow") version ("6.1.0")
     id("org.beryx.runtime") version ("1.11.4")
 
@@ -162,8 +162,8 @@ fun DependencyHandler.orxNatives(module: String): Any {
 dependencies {
     /*  This is where you add additional (third-party) dependencies */
 
-    implementation("com.github.wendykierp","JTransforms", "3.0")
-    implementation("de.sciss","sphinx4","1.0.0")
+    implementation("com.github.wendykierp", "JTransforms", "3.0")
+    implementation("de.sciss", "sphinx4", "1.0.0")
 
     runtimeOnly(openrndr("gl3"))
     runtimeOnly(openrndrNatives("gl3"))
@@ -175,15 +175,15 @@ dependencies {
     implementation(openrndr("extensions"))
     implementation(openrndr("filter"))
 
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core","1.5.0-RC")
-    implementation("io.github.microutils", "kotlin-logging-jvm","2.0.6")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.5.0-RC")
+    implementation("io.github.microutils", "kotlin-logging-jvm", "2.0.6")
 
-    when(applicationLogging) {
+    when (applicationLogging) {
         Logging.NONE -> {
-            runtimeOnly("org.slf4j","slf4j-nop","1.7.30")
+            runtimeOnly("org.slf4j", "slf4j-nop", "1.7.30")
         }
         Logging.SIMPLE -> {
-            runtimeOnly("org.slf4j","slf4j-simple","1.7.30")
+            runtimeOnly("org.slf4j", "slf4j-simple", "1.7.30")
         }
         Logging.FULL -> {
             runtimeOnly("org.apache.logging.log4j", "log4j-slf4j-impl", "2.13.3")
