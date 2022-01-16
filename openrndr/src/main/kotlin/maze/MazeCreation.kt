@@ -15,53 +15,9 @@ val WALL_COLOR = ColorRGBa(.3, .0, .3)
 val VISITED_COLOR = ColorRGBa(.8, .2, .3) //ColorRGBa(.0, .9, .7)
 val ACTIVE_COLOR = ColorRGBa(.99, .5, .8) //ColorRGBa(0.0, 0.8, 0.3)
 
-class Cell(val x: Int, val y: Int) {
-    val walls = arrayOf(true, true, true, true)
-
-    var visited = false
-
-    override fun toString() = "Cell($x, $y)"
-}
-
-class Explorer(start: Cell) {
-
-    var current: Cell = start
-
-    private val stack = mutableListOf(current)
-
-    fun explore(maze: MazeGenerator): Boolean {
-        if (stack.isNotEmpty()) {
-            current.visited = true
-            current = when (val next = maze.unvisitedNeighbour(current)) {
-                null -> {
-                    pop(stack)
-                }
-                else -> {
-                    maze.breakWall(current, next)
-                    push(current, stack)
-                    next
-                }
-            }
-            return false
-        }
-        return true
-    }
-
-    fun <T> pop(stack: MutableList<T>): T {
-        val element = stack.last()
-        stack.removeLast()
-        return element
-    }
-
-    fun <T> push(element: T, stack: MutableList<T>) {
-        stack.add(element)
-    }
 
 
-}
-
-
-class MazeGenerator(width: Int, height: Int, val cellSize: Int = 40) {
+class Maze(width: Int, height: Int, val cellSize: Int = 40) {
 
     val cols = width / cellSize
     val rows = height / cellSize
@@ -98,10 +54,53 @@ class MazeGenerator(width: Int, height: Int, val cellSize: Int = 40) {
             next.walls[1 + y] = false
         }
     }
+
+
+    class Explorer(start: Cell) {
+
+        var current: Cell = start
+        val stack = mutableListOf(current)
+
+
+        fun explore(maze: Maze): Boolean {
+            if (stack.isNotEmpty()) {
+                current.visited = true
+                current = when (val next = maze.unvisitedNeighbour(current)) {
+                    null -> {
+                        pop(stack)
+                    }
+                    else -> {
+                        maze.breakWall(current, next)
+                        push(current, stack)
+                        next
+                    }
+                }
+                return false
+            }
+            return true
+        }
+
+        fun <T> pop(stack: MutableList<T>): T {
+            val element = stack.last()
+            stack.removeLast()
+            return element
+        }
+
+        fun <T> push(element: T, stack: MutableList<T>) {
+            stack.add(element)
+        }
+
+    }
+
+    class Cell(val x: Int, val y: Int) {
+        val walls = arrayOf(true, true, true, true)
+        var visited = false
+    }
+
 }
 
 
-fun drawCells(maze: MazeGenerator, drawer: Drawer) {
+fun drawCells(maze: Maze, drawer: Drawer) {
     with(maze) {
 
         for (i in 0 until cols) {
@@ -130,16 +129,16 @@ fun drawCells(maze: MazeGenerator, drawer: Drawer) {
     }
 }
 
-fun drawCurrent(cell: Cell, size: Double, drawer: Drawer) {
-    val x = cell.x * size
-    val y = cell.y * size
+fun drawExplorer(explorer: Maze.Explorer, size: Double, drawer: Drawer) {
+    val x = explorer.current.x * size
+    val y = explorer.current.y * size
 
     drawer.stroke = null
     drawer.fill = ACTIVE_COLOR
     drawer.rectangle(x, y, size, size)
 }
 
-fun drawCell(explorer: Explorer, maze: MazeGenerator, xOff: Int, yOff: Int, drawer: Drawer) {
+fun drawCell(explorer: Maze.Explorer, maze: Maze, xOff: Int, yOff: Int, drawer: Drawer) {
     with(maze) {
         val index = index(explorer.current.x + xOff, explorer.current.y + yOff)
         if (index == -1) return
@@ -164,7 +163,7 @@ fun drawCell(explorer: Explorer, maze: MazeGenerator, xOff: Int, yOff: Int, draw
     }
 }
 
-fun drawSurroundingCells(dora: Explorer, maze: MazeGenerator, drawer: Drawer) {
+fun drawSurroundingCells(dora: Maze.Explorer, maze: Maze, drawer: Drawer) {
     drawCell(dora, maze, 1, 0, drawer)
     drawCell(dora, maze, -1, 0, drawer)
     drawCell(dora, maze, 0, 1, drawer)
@@ -181,14 +180,14 @@ fun mazeApp(w: Int, h: Int, size: Int, frameRate: Int) = application {
 
     program {
 
-        val maze = MazeGenerator(w, h, size)
+        val maze = Maze(w, h, size)
         val index = maze.index(maze.cols / 2, maze.rows / 2)
         val start = maze.grid[index]
 
-        val dora = Explorer(start)
-        val marco = Explorer(start)
-        val heyerdahl = Explorer(start)
-        val armstrong = Explorer(start)
+        val dora = Maze.Explorer(start)
+        val marco = Maze.Explorer(start)
+        val heyerdahl = Maze.Explorer(start)
+        val armstrong = Maze.Explorer(start)
         val explorers = listOf(dora, marco, heyerdahl, armstrong)
 
         // fast render
@@ -205,8 +204,9 @@ fun mazeApp(w: Int, h: Int, size: Int, frameRate: Int) = application {
 
             for (e in explorers.shuffled()) {
                 e.explore(maze)
+
                 drawSurroundingCells(e, maze, drawer)
-                drawCurrent(e.current, maze.cellSize.toDouble(), drawer)
+                drawExplorer(e, maze.cellSize.toDouble(), drawer)
             }
 
 
